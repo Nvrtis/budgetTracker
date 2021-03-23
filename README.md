@@ -1,4 +1,4 @@
-# Unit 18 PWA Homework: Online/Offline Budget Trackers
+# Budget Trackers
 
 Add functionality to our existing Budget Tracker application to allow for offline access and functionality.
 
@@ -60,11 +60,3 @@ THEN that will be shown on the page, and added to their transaction history when
   * the URL to the deployed application
 
   * the URL to the Github repository
-
-- - -
-
-## Hint
-
-* In order to cache dynamic content, i.e. users' inputs for withdrawals or deposits, incorporate `indexedDB` from the previous module.
-
-* Use [Google](https://www.google.com) or another search engine to research this topic.# budgetTracker
