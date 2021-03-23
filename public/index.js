@@ -1,5 +1,8 @@
 let transactions = [];
 let myChart;
+let db;
+let tx
+let store;
 
 fetch("/api/transaction")
   .then(response => {
@@ -143,6 +146,62 @@ function sendTransaction(isAdding) {
     amountEl.value = "";
   });
 }
+
+const request = window.indexedDB.open("Transaction_DB", 1)
+
+request.onupgradeneeded = e =>{
+  db = request.result;
+  db.createObjectStore("transaction", {keyPath: "id", autoIncrement: true})
+}
+
+request.onerror = e => console.log("There was an error" + e.target.errorCode)
+
+request.onsuccess = e =>{
+  db = request.result;
+  console.log(`Sucessfully opened ${db.name}`)
+  db.onerror = function(e) {
+    console.log("error");
+  };
+ }
+
+function saveRecord (transaction){
+  tx = db.transaction(["transaction"], "readwrite");
+  store = tx.objectStore(["transaction"]);
+  store.add({
+    name:transaction.name,
+    value:transaction.value,
+    date: transaction.date
+  })
+ 
+ }
+
+ function checkDatabase() {
+  db = request.result;
+  tx = db.transaction(["transaction"], "readwrite");
+  store = tx.objectStore(["transaction"]);
+  const getAll = store.getAll();
+
+  getAll.onsuccess = () => {
+      if (getAll.result.length > 0) {
+          fetch(`/api/transaction/bulk`, {
+              method: `POST`,
+              body: JSON.stringify(getAll.result),
+              headers: {
+                  Accept: `application/json, text/plain, */*`,
+                  "Content-Type": `application/json`
+              }
+          })
+              .then(response => response.json())
+              .then(() => {
+                  tx = db.transaction(["transaction"], `readwrite`);
+                  store = transaction.objectStore(["transaction"]);
+                  store.clear();
+              });
+      }
+  };
+}
+
+ window.addEventListener(`online`, checkDatabase);
 
 document.querySelector("#add-btn").onclick = function() {
   sendTransaction(true);
