@@ -147,6 +147,7 @@ function sendTransaction(isAdding) {
   });
 }
 
+// opening new indexDB database
 const request = window.indexedDB.open("Transaction_DB", 1)
 
 request.onupgradeneeded = e =>{
@@ -164,6 +165,7 @@ request.onsuccess = e =>{
   };
  }
 
+//  saves transaction and adds it to transaction database
 function saveRecord (transaction){
   tx = db.transaction(["transaction"], "readwrite");
   store = tx.objectStore(["transaction"]);
@@ -175,12 +177,13 @@ function saveRecord (transaction){
  
  }
 
+//  thows everything inside indexDB into the no SQL database
  function checkDatabase() {
   db = request.result;
   tx = db.transaction(["transaction"], "readwrite");
   store = tx.objectStore(["transaction"]);
   const getAll = store.getAll();
-
+// post request to update the database
   getAll.onsuccess = () => {
       if (getAll.result.length > 0) {
           fetch(`/api/transaction/bulk`, {
@@ -195,12 +198,13 @@ function saveRecord (transaction){
               .then(() => {
                   tx = db.transaction(["transaction"], `readwrite`);
                   store = transaction.objectStore(["transaction"]);
+                  // clears the database after everything has been pushed through
                   store.clear();
               });
       }
   };
 }
-
+// eventlistener for when the user goes online again
  window.addEventListener(`online`, checkDatabase);
 
 document.querySelector("#add-btn").onclick = function() {
